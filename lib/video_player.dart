@@ -1,11 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:promiloassignment/models/suggestedVideoModel.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class VideoPlayer extends StatefulWidget {
-  final String? videoUrl;
-  const VideoPlayer({super.key, this.videoUrl});
+  final Map<String, dynamic>? data;
+  const VideoPlayer({super.key, this.data});
 
   @override
   State<VideoPlayer> createState() => _VideoPlayerState();
@@ -13,23 +14,27 @@ class VideoPlayer extends StatefulWidget {
 
 class _VideoPlayerState extends State<VideoPlayer> {
   late YoutubePlayerController _youtubePlayerController;
-  //https://youtu.be/PJsiUD57gaw?si=uZFZlEM1I9BLAkJZ
 
-//
-  List<Map<String, String>> suggestedVideos = [
-    {
-      "title": "Whats new in flutter",
-      "url": 'https://youtu.be/PJsiUD57gaw?si=uZFZlEM1I9BLAkJZ'
-    },
+  List<SuggestedVideo> suggestedVideos = [
+    SuggestedVideo(
+        title: "Whats new in flutter",
+        url: "https://youtu.be/PJsiUD57gaw?si=uZFZlEM1I9BLAkJZa",
+        publishedBy: "RS media",
+        publishedOn: "10-Oct-2023"),
+    SuggestedVideo(
+        title: "3D in FLutter",
+        url: "https://youtu.be/6t7To8HLn3A?si=jwUCiga26K5RylN6",
+        publishedBy: "CodeX",
+        publishedOn: "20-Jan-2023"),
   ];
   bool _isEnded = false;
   @override
   void initState() {
     super.initState();
-    log("video url ${widget.videoUrl!}");
+    log("video url ${widget.data!["videoUrl"]}");
     _youtubePlayerController = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(widget.videoUrl!)!,
-      flags: YoutubePlayerFlags(
+      initialVideoId: YoutubePlayer.convertUrlToId(widget.data!["videoUrl"]!)!,
+      flags: const YoutubePlayerFlags(
         autoPlay: false,
       ),
     )..addListener(listener);
@@ -41,6 +46,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
       setState(() {
         _isEnded = true;
+      });
+    } else {
+      setState(() {
+        _isEnded = false;
       });
     }
   }
@@ -54,43 +63,106 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("data"),
-      ),
+      appBar: AppBar(),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.center,
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: YoutubePlayer(
-                controller: _youtubePlayerController,
-                showVideoProgressIndicator: true,
-                onReady: () {
-                  //
-                  log("on ready called");
-                },
-              ),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: YoutubePlayer(
+              controller: _youtubePlayerController,
+              showVideoProgressIndicator: true,
+              onReady: () {
+                //
+                log("on ready called");
+              },
             ),
           ),
           _isEnded
               ? Expanded(
-                  child: ListView.builder(
-                    itemCount: suggestedVideos.length,
-                    itemBuilder: (context, index) {
-                      final video = suggestedVideos[index];
-                      return ListTile(
-                        title: Text(video['title']!),
-                        onTap: () {
-                          // On tap, play the selected video
-                          setState(() {
-                            _isEnded = false; // Reset the state
-                            _youtubePlayerController.load(
-                                YoutubePlayer.convertUrlToId(video['url']!)!);
-                          });
-                        },
-                      );
-                    },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Suggested Videos"),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: suggestedVideos.length,
+                          itemBuilder: (context, index) {
+                            final video = suggestedVideos[index];
+
+                            final videoID =
+                                YoutubePlayer.convertUrlToId(video.url!);
+                            return _youtubePlayerController.metadata.videoId ==
+                                    videoID
+                                ? const SizedBox.shrink()
+                                : InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _isEnded = false;
+                                      });
+                                      _youtubePlayerController.load(
+                                          YoutubePlayer.convertUrlToId(
+                                              video.url!)!);
+                                    },
+                                    child: Card(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                  height: 100,
+                                                  width: double.infinity,
+                                                  child: Center(
+                                                    child: Image.network(
+                                                      YoutubePlayer
+                                                          .getThumbnail(
+                                                              videoId:
+                                                                  videoID!),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(video.title!),
+                                                    SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Text(
+                                                        "published by : ${video.publishedBy!}"),
+                                                    SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Text(
+                                                        "published on:${video.publishedOn!}"),
+                                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 )
               : const SizedBox.shrink()

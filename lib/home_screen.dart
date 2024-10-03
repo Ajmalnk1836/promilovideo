@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:promiloassignment/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,7 +13,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   //fetch firebase videos
   Future<List?> fetchVideos() async {
     try {
@@ -42,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
           FutureBuilder(
             future: fetchVideos(),
             builder: (context, snapshot) {
+              final videoID = YoutubePlayer.convertUrlToId(
+                  snapshot.data!.first['videoUrl'].toString());
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -55,25 +57,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text("No video found"),
                 );
               }
-              return Card(
-                child: ListTile(
-                  title: Text(snapshot.data!.first["channelName"]),
-                  leading: const CircleAvatar(),
-                  titleAlignment: ListTileTitleAlignment.center,
-                  subtitle: Text(snapshot.data!.first["title"]),
-                  trailing: GestureDetector(
-                      onTap: () {
-                        // /VideoPlayer
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VideoPlayer(
-                                videoUrl: snapshot.data!.first['videoUrl'],
-                              ),
-                            ));
-                      },
-                      child: const Text("Go to video")),
-                ),
+              return Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VideoPlayer(
+                            data: snapshot.data!.first,
+                          ),
+                        ),
+                      );
+                    },
+                    child: SizedBox(
+                      height: 200,
+                      width: double.infinity,
+                      child: Card(
+                          child: Image.network(
+                        YoutubePlayer.getThumbnail(videoId: videoID!),
+                        fit: BoxFit.cover,
+                      )),
+                    ),
+                  ),
+                ],
               );
             },
           )
