@@ -12,13 +12,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  //fetch firebase videos
   Future<List?> fetchVideos() async {
     try {
       QuerySnapshot querySnapshot =
           await FirebaseFirestore.instance.collection('videos').get();
       return querySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
-      log("e -issue  ${e.toString()}");
+      log("issue  ${e.toString()}");
     }
   }
 
@@ -32,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Homescreen"),
+        title: const Text("VIDEO LISTS"),
         centerTitle: true,
       ),
       body: Column(
