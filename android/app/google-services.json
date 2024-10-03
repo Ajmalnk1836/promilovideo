@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "535428201831",
+    "project_id": "promilovideo",
+    "storage_bucket": "promilovideo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:535428201831:android:1a96c564a86cb0342b43c2",
+        "android_client_info": {
+          "package_name": "com.example.promiloassignment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3cqR41_2bU6_wwisIgidYt8aP2liw79c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
